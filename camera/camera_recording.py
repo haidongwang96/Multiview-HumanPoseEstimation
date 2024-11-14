@@ -5,19 +5,31 @@ import os
 
 import utility as su
 
+
+def get_cv2_capture(cam_id):
+    """
+    此函数的目的是同一所有opencv的视频流设定
+    Note: 采用不同分辨率的相机，内参不同
+    """
+    cap = cv2.VideoCapture(cam_id)
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+
+    return cap
+
 def single_picture_recording(cam_id,key="sample"):
     sample_folder = su.create_ouput_folder(key)
 
     print("single camera recording")
-    capture = cv2.VideoCapture(cam_id)
+    cap = get_cv2_capture(cam_id)
 
-    if not capture.isOpened():
+    if not cap.isOpened():
         print("Error: Could not open camera.")
         exit()
 
     while True:
         # Capture frame-by-frame
-        ret, frame = capture.read()
+        ret, frame = cap.read()
 
         # Check if the frame was captured successfully
         if not ret:

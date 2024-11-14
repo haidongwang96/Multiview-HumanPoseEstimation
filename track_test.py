@@ -14,6 +14,13 @@ model = YOLO("data/weights/yolo11n.pt")
 # video_path = "WIN_20241113_16_34_36_Pro.mp4"
 # cap = cv2.VideoCapture(video_path)
 cap = cv2.VideoCapture(0)
+# 设置视频流的分辨率为 1280x720
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+
+# 设置曝光和帧率
+# cap.set(cv2.CAP_PROP_EXPOSURE, -6)  # 负值可能表示自动曝光关闭，具体值视摄像头而定
+cap.set(cv2.CAP_PROP_FPS, 30)       # 设置帧率为30fps
 
 # Store the track history
 track_history = defaultdict(lambda: [])

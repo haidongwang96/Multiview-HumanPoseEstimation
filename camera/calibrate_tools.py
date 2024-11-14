@@ -12,11 +12,81 @@ def collect_images_by_index(image_folder_path, cam_id):
     images_paths = glob.glob(images_prefix)
     return images_paths
 
-# Calibrate single camera to obtain camera intrinsic parameters from saved frames.
-def single_camera_calibrate_intrinsic_parameters(image_folder_path, cam_id, calibration_settings_path="camera/calibration_settings.yaml"):
+
+
+def single_camera_calibrate_intrinsic_redo_with_rmse(image_folder_path, cam_id):
     # NOTE: images_prefix contains camera name: "frames/camera0*".
+    images_names = collect_images_by_index(image_folder_path, cam_id)
+    print(images_names)
+
+    # read all frames
+    images = [cv2.imread(imname, 1) for imname in images_names]
+    print(f"{len(images)} images found.")
+
+    # 初始化对象点和图像点列表
+    objpoints = []  # 3D points in real world space
+    imgpoints = []  # 2D points in image plane.
+
+    # 设置棋盘格的规格
+    chessboard_size = (9, 6)  # 棋盘格内角点数目
+
+    # 准备棋盘格对象点
+    objp = np.zeros((chessboard_size[0] * chessboard_size[1], 3), np.float32)
+    objp[:, :2] = np.mgrid[0:chessboard_size[0], 0:chessboard_size[1]].T.reshape(-1, 2)
 
 
+    # 遍历所有的图像文件路径
+    for img in images:
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)  # 将当前图像转换为灰度图
+
+        # 查找棋盘格角点
+        ret, corners = cv2.findChessboardCorners(gray, chessboard_size, None)
+
+        # 如果找到棋盘格角点
+        if ret:
+            # 将棋盘格角点添加到imgpoints列表中
+            imgpoints.append(corners)
+            # 添加相应的3D对象点
+            objpoints.append(objp)
+
+    # 使用对象点和图像点进行相机标定，得到相机的内参矩阵、畸变系数以及旋转矩阵和平移矩阵
+    ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
+
+    # 剔除重投影误差大于0.3的图像
+    new_objpoints = []
+    new_imgpoints = []
+    for i in range(len(objpoints)):
+        imgpoints2, _ = cv2.projectPoints(objpoints[i], rvecs[i], tvecs[i], mtx, dist)
+        error = cv2.norm(imgpoints[i], imgpoints2, cv2.NORM_L2) / len(imgpoints2)
+        if error <= 0.3:
+            new_objpoints.append(objpoints[i])
+            new_imgpoints.append(imgpoints[i])
+
+    # 使用剔除后的点重新进行相机标定
+    ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(new_objpoints, new_imgpoints, gray.shape[::-1], None, None)
+
+    # 计算重投影误差
+    mean_error = 0
+    for i in range(len(new_objpoints)):
+        imgpoints2, _ = cv2.projectPoints(new_objpoints[i], rvecs[i], tvecs[i], mtx, dist)
+        error = cv2.norm(new_imgpoints[i], imgpoints2, cv2.NORM_L2) / len(imgpoints2)
+        mean_error += error
+
+    print("剔除后相机内参:")
+    print(mtx)
+    print("剔除后畸变系数")
+    print(dist)
+    # 输出重投影误差
+    print("剔除后重投影", mean_error / len(new_objpoints))
+
+    return mtx, dist
+
+
+
+# Calibrate single camera to obtain camera intrinsic parameters from saved frames.
+def single_camera_calibrate_intrinsic_parameters(image_folder_path, cam_id):
+
+    # NOTE: images_prefix contains camera name: "frames/camera0*".
     images_names = collect_images_by_index(image_folder_path, cam_id)
 
     # read all frames
@@ -25,14 +95,14 @@ def single_camera_calibrate_intrinsic_parameters(image_folder_path, cam_id, cali
 
     # criteria used by checkerboard pattern detector.
     # Change this if the code can't find the checkerboard. 
-    criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 100, 0.001)
+    criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
     # Calibration board needs to match inputs rows & columns #
     #  rows & columns # are the intersection dot of white and black squares
-    calibration_settings = su.read_yaml_file(calibration_settings_path)
-    rows = calibration_settings['checkerboard_rows']
-    columns = calibration_settings['checkerboard_columns']
-    world_scaling = calibration_settings['checkerboard_box_size_scale']  # this will change to user defined length scale
+    chessboard_size = (6, 9, 0.022)
+    rows = chessboard_size[0]
+    columns = chessboard_size[1]
+    world_scaling = chessboard_size[2]
 
     # coordinates of squares in the checkerboard world space
     objp = np.zeros((rows * columns, 3), np.float32)
@@ -83,6 +153,9 @@ def single_camera_calibrate_intrinsic_parameters(image_folder_path, cam_id, cali
     print('distortion coeffs:', dist)
 
     return cmtx, dist
+
+
+
 
 
 # open paired calibration frames and stereo calibrate for cam0 to cam1 coorindate transformations

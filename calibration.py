@@ -22,8 +22,11 @@ def calibrate_single_intrinscis(sample_folder, cam_id):
 
 
 if __name__ == '__main__':
-    sample_folder = "record/sample_1"
+    sample_folder = "data/record/sample_3"
 
     # calibrate_both_intrinsics(sample_folder)
 
-    calibrate_single_intrinscis(sample_folder,1)
+    #calibrate_single_intrinscis(sample_folder,1)
+
+
+    camera.single_camera_calibrate_intrinsic_redo_with_rmse(sample_folder,1)
