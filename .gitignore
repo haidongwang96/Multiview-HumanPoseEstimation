@@ -1,0 +1,9 @@
+/data
+*.log
+*.tmp
+*.temp
+.DS_Store
+*.jpg
+*.mp4
+*.pt
+*.idea
