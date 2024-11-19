@@ -8,7 +8,7 @@ import time
 from ultralytics import YOLO
 
 # Load the YOLO11 model
-model = YOLO("data/weights/yolo11n.pt")
+model = YOLO("yolo11n-pose.pt")
 
 # Open the video file
 # video_path = "WIN_20241113_16_34_36_Pro.mp4"

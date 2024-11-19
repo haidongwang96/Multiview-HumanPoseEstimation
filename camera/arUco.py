@@ -33,7 +33,10 @@ def estimate_pose(frame, mtx, dist):
 
     return frame  # 返回处理后的图像
 
-def estimate_single_marker_r_t(frame, mtx, dist, marker_length=0.2):
+def estimate_single_marker_r_t(frame, mtx, dist=np.array([0,0,0,0,0]),  marker_length=0.2):
+    """
+    distortion在这里统一忽略 直接带入[0,0,0,0,0]
+    """
     # 将图像转换为灰度图
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
@@ -43,7 +46,10 @@ def estimate_single_marker_r_t(frame, mtx, dist, marker_length=0.2):
     if ids is not None and len(ids) == 1:
         # 估计ArUco标记的姿态（旋转向量和平移向量）
         rvec, tvec, _ = aruco.estimatePoseSingleMarkers(corners[0], marker_length, mtx, dist)
-        R, _ = cv2.Rodrigues(rvec)
+    else:
+        print("No Ids")
+
+    return rvec, tvec
 
 
 

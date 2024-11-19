@@ -8,16 +8,11 @@ import utility as su
 
 
 
-def collect_images_by_index(image_folder_path, cam_id):
-    images_prefix =f"{image_folder_path}/*_{cam_id}.jpg"
-    images_paths = glob.glob(images_prefix)
-    return images_paths
-
 
 
 def single_camera_calibrate_intrinsic_redo_with_rmse(image_folder_path, cam_id):
     # NOTE: images_prefix contains camera name: "frames/camera0*".
-    images_names = collect_images_by_index(image_folder_path, cam_id)
+    images_names = su.collect_images_by_index(image_folder_path, cam_id)
     print(images_names)
 
     # read all frames
@@ -88,7 +83,7 @@ def single_camera_calibrate_intrinsic_redo_with_rmse(image_folder_path, cam_id):
 def single_camera_calibrate_intrinsic_parameters(image_folder_path, cam_id):
 
     # NOTE: images_prefix contains camera name: "frames/camera0*".
-    images_names = collect_images_by_index(image_folder_path, cam_id)
+    images_names = su.collect_images_by_index(image_folder_path, cam_id)
 
     # read all frames
     images = [cv2.imread(imname, 1) for imname in images_names]
@@ -394,107 +389,10 @@ def project_3D_points_to_camera(draw_axes_points, P):
     return pixel_points_camera
 
 
-# After calibrating, we can see shifted coordinate axes in the video feeds directly
-def check_calibration(camera0_name, camera0_data, camera1_name, camera1_data, calibration_settings, _zshift=50.):
-    cmtx0 = np.array(camera0_data[0])
-    dist0 = np.array(camera0_data[1])
-    R0 = np.array(camera0_data[2])
-    T0 = np.array(camera0_data[3])
-    cmtx1 = np.array(camera1_data[0])
-    dist1 = np.array(camera1_data[1])
-    R1 = np.array(camera1_data[2])
-    T1 = np.array(camera1_data[3])
 
-    P0 = get_projection_matrix(cmtx0, R0, T0)
-    P1 = get_projection_matrix(cmtx1, R1, T1)
 
-    # define coordinate axes in 3D space. These are just the usual coorindate vectors
-    coordinate_points = np.array([[0., 0., 0.],
-                                  [1., 0., 0.],
-                                  [0., 1., 0.],
-                                  [0., 0., 1.]])
-    z_shift = np.array([0., 0., _zshift]).reshape((1, 3))
-    # increase the size of the coorindate axes and shift in the z direction
-    draw_axes_points = 5 * coordinate_points + z_shift
-    print(draw_axes_points)
 
-    # project 3D points to each camera view manually. This can also be done using cv.projectPoints()
-    # Note that this uses homogenous coordinate formulation
-    pixel_points_camera0 = []
-    pixel_points_camera1 = []
-    for _p in draw_axes_points:
-        X = np.array([_p[0], _p[1], _p[2], 1.])
 
-        # project to camera0
-        uv = P0 @ X
-        uv = np.array([uv[0], uv[1]]) / uv[2]
-        pixel_points_camera0.append(uv)
-
-        # project to camera1
-        uv = P1 @ X
-        uv = np.array([uv[0], uv[1]]) / uv[2]
-        pixel_points_camera1.append(uv)
-
-    # these contain the pixel coorindates in each camera view as: (pxl_x, pxl_y)
-    pixel_points_camera0 = np.array(pixel_points_camera0)
-    pixel_points_camera1 = np.array(pixel_points_camera1)
-    # print(pixel_points_camera0)
-    # print(pixel_points_camera1)
-
-    # open the video streams
-    # cap0 = cv2.VideoCapture(calibration_settings[camera0_name])
-    # cap1 = cv2.VideoCapture(calibration_settings[camera1_name])
-    #
-    # # set camera resolutions
-    # width = calibration_settings['frame_width']
-    # height = calibration_settings['frame_height']
-    # cap0.set(3, width)
-    # cap0.set(4, height)
-    # cap1.set(3, width)
-    # cap1.set(4, height)
-
-    # while True:
-
-    # ret0, frame0 = cap0.read()
-    # ret1, frame1 = cap1.read()
-
-    # if not ret0 or not ret1:
-    #     print('Video stream not returning frame data')
-    #     quit()
-
-    import realsense
-    yaml_path = "../realsense/rs_config.yaml"
-    config = su.read_yaml_file(yaml_path)
-    serials = config["serials"]
-
-    rscam0 = realsense.rsCamera(config, serials[0])
-    stream_0 = rscam0.rgb_rs_stream()
-    rscam1 = realsense.rsCamera(config, serials[1])
-    stream_1 = rscam1.rgb_rs_stream()
-
-    for frame0, frame1 in zip(stream_0, stream_1):
-
-        # follow RGB colors to indicate XYZ axes respectively
-        colors = [(0, 0, 255), (0, 255, 0), (255, 0, 0)]
-        # draw projections to camera0
-        origin = tuple(pixel_points_camera0[0].astype(np.int32))
-        for col, _p in zip(colors, pixel_points_camera0[1:]):
-            _p = tuple(_p.astype(np.int32))
-            cv2.line(frame0, origin, _p, col, 2)
-
-        # draw projections to camera1
-        origin = tuple(pixel_points_camera1[0].astype(np.int32))
-        for col, _p in zip(colors, pixel_points_camera1[1:]):
-            _p = tuple(_p.astype(np.int32))
-            cv2.line(frame1, origin, _p, col, 2)
-
-        cv2.imshow('frame0', frame0)
-        cv2.imshow('frame1', frame1)
-
-        k = cv2.waitKey(1)
-        if k == 27: break
-
-    cv2.destroyAllWindows()
 
 
 if __name__ == '__main__':

@@ -14,6 +14,7 @@ def get_cv2_capture(cam_id):
     cap = cv2.VideoCapture(cam_id)
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+    cap.set(cv2.CAP_PROP_FPS, 30)  # 设置帧率为30fps
 
     return cap
 
@@ -36,7 +37,6 @@ def single_picture_recording(cam_id,key="sample"):
             print("Error: Could not read frame.")
             break
 
-
         cv2.imshow("0", frame)
         key = cv2.waitKey(1)
         if key == 32:
@@ -55,8 +55,10 @@ def double_picture_recording(cam_id1, cam_id2, key="sample"):
 
     sample_folder = su.create_ouput_folder(key)
     print("double camera recording")
-    capture0 = cv2.VideoCapture(cam_id1)
-    capture1 = cv2.VideoCapture(cam_id2)
+    # capture0 = cv2.VideoCapture(cam_id1)
+    # capture1 = cv2.VideoCapture(cam_id2)
+    capture0 = get_cv2_capture(cam_id1)
+    capture1 = get_cv2_capture(cam_id2)
 
     if not capture0.isOpened() or not capture1.isOpened():
         print("Error: Could not open one or both cameras.")

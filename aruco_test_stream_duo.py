@@ -42,7 +42,7 @@ while True:
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
-# 释放VideoCapture对象
+# 释放VideoCapture对象c
 cap0.release()
 cap1.release()
 cv2.destroyAllWindows()

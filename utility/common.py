@@ -3,6 +3,7 @@
 
 import os
 import json
+import glob
 import yaml
 import time
 import pickle
@@ -14,7 +15,17 @@ import multiprocessing
 
 import tqdm
 
+
 _global_lock = multiprocessing.Lock()
+
+
+def print_block():
+    print("===========================================================")
+
+def collect_images_by_index(image_folder_path, cam_id):
+    images_prefix =f"{image_folder_path}/*_{cam_id}.jpg"
+    images_paths = glob.glob(images_prefix)
+    return images_paths
 
 def create_ouput_folder(prefix="sample"):
     """

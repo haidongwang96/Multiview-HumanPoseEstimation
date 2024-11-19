@@ -5,6 +5,21 @@ import numpy as np
 fontScale = 0.5
 thickness = 1
 
+def get_axis_points(length=0.05):
+    coordinate_points = np.float32([[0, 0, 0],  # 原点
+                                    [length, 0, 0],  # X轴终点
+                                    [0, length, 0],  # Y轴终点
+                                    [0, 0, length],  # Z轴终点
+                                ]).reshape(-1, 3)
+    return coordinate_points
+
+def draw_axes(frame, imgpts):
+    assert len(imgpts) == 4
+    cv2.line(frame, imgpts[0], imgpts[1], (0, 0, 255), 3)
+    cv2.line(frame, imgpts[0], imgpts[2], (0, 255, 0), 3)
+    cv2.line(frame, imgpts[0], imgpts[3], (255, 0, 0), 3)
+    return frame
+
 
 def drawCube(img, imgpts):
     imgpts = np.int32(imgpts).reshape(-1, 2)
