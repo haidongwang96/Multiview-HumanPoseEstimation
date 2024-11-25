@@ -1,18 +1,23 @@
 import camera
-
+import utility as su
 import numpy as np
 import cv2
 
-# 1280*720
-mtx0 = np.array([[791.5837032, 0., 641.05413647],
-                 [0., 791.94049493, 311.24557671],
-                 [0., 0., 1.]])
-dist0 = np.array([[1.56754836e-02, 8.64003826e-01, -7.33367826e-03, 1.41220244e-03, -6.44556463e+00]])
 
-mtx1 = np.array([[781.18543401, 0., 652.45577192],
-                 [0., 780.81321374, 338.19187737],
-                 [0., 0., 1.]])
-dist1 = np.array([[0.05427265,  0.00726026,  0.00728199, -0.00566807, -0.22047885]])
+
+# 1280*720
+# mtx0 = np.array([[791.5837032, 0., 641.05413647],
+#                  [0., 791.94049493, 311.24557671],
+#                  [0., 0., 1.]])
+# dist0 = np.array([[1.56754836e-02, 8.64003826e-01, -7.33367826e-03, 1.41220244e-03, -6.44556463e+00]])
+#
+# mtx1 = np.array([[781.18543401, 0., 652.45577192],
+#                  [0., 780.81321374, 338.19187737],
+#                  [0., 0., 1.]])
+# dist1 = np.array([[0.05427265,  0.00726026,  0.00728199, -0.00566807, -0.22047885]])
+
+mtx0, dist0 = camera.load_intrinsic_calibration_parameters("data/camera_parameters/camera_0_intrinsics.json")
+mtx1, dist1 = camera.load_intrinsic_calibration_parameters("data/camera_parameters/camera_1_intrinsics.json")
 
 
 cap0 = camera.get_cv2_capture(0)
