@@ -34,3 +34,14 @@ extr_cam1_to_cam0 = camera.cam1_to_cam2_transformation(extr1,extr0)
 extr0_self = camera.get_self_transformation_extrinsic()
 
 camera.check_duo_calibration(extr0_self, intr0, extr_cam1_to_cam0, intr1,_zshift=0.8)
+
+pack = {
+    "extr0_self_r":extr0_self.R().tolist(),
+    "extr0_self_t":extr0_self.t().tolist(),
+    "intr0":intr0.get_cam_mtx().tolist(),
+    "extr_cam1_to_cam0_r":extr_cam1_to_cam0.R().tolist(),
+    "extr_cam1_to_cam0_t":extr_cam1_to_cam0.t().tolist(),
+    "intr1":intr1.get_cam_mtx().tolist()
+}
+
+su.write_json_file(pack,"pack.json")

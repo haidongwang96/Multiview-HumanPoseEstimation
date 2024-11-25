@@ -4,6 +4,7 @@ import glob
 import os
 import scipy
 import numpy as np
+
 import utility as su
 
 
@@ -387,9 +388,6 @@ def project_3D_points_to_camera(draw_axes_points, P):
         pixel_points_camera.append(uv)
 
     return pixel_points_camera
-
-
-
 
 
 

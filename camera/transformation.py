@@ -1,8 +1,12 @@
 import numpy as np
 import cv2
+import scipy
 
 import camera
 import utility as su
+
+
+
 
 
 class Extrinsic:
@@ -61,6 +65,19 @@ class Intrinsics:
         m = [[self.fx, 0, self.cx], [0, self.fy, self.cy], [0, 0, 1]]
         return np.array(m)
 
+
+class ProjectionMatrix():
+
+    def __init__(self, intr: Intrinsics, extr: Extrinsic):
+        self.intr = intr
+        self.extr = extr
+
+    def get_projection_matrix(self):
+        """
+        3*3 @ 3*4
+        """
+        return self.intr.get_cam_mtx() @ self.extr.pose_mat[:3, :]
+
 def get_self_transformation_extrinsic():
     R0 = np.eye(3, dtype=np.float32)
     T0 = np.array([0., 0., 0.]).reshape((3, 1))
@@ -69,7 +86,7 @@ def get_self_transformation_extrinsic():
 def cam1_to_cam2_transformation(extr1: Extrinsic, extr2: Extrinsic):
     """
     已知 Cam1和 Cam2到marker坐标系的旋转平移矩阵，通过marker坐标系做桥梁，计算出CAM1 到CAM2的变换矩阵
-    详细数学计算见 README.md 'cam1_to_cam2_transformation'
+    详细数学计算见 IDEA.md 'cam1_to_cam2_transformation'
     """
     R1_2 = extr2.R() @ extr1.R_inv()
     t1_2 = extr2.t() - R1_2 @ extr1.t()
@@ -79,7 +96,7 @@ def project_2d_withdepth_to_3d(points2d, depth, intr: Intrinsics):
     """
     将图像中2d的点，投射到3d空间中
     理论上，2d到3d只能变换出一条线，所以此方法需要确定一个depth，给定空间中的位置\
-    详细数学计算见 README.md 'project_2d_withdepth_to_3d'
+    详细数学计算见 IDEA.md 'project_2d_withdepth_to_3d'
     """
     pixel_x, pixel_y = points2d
     X = depth * (pixel_x - intr.cx) / intr.fx
@@ -108,6 +125,28 @@ def project_3d_to_2d(points_3d, extr:Extrinsic, intr:Intrinsics):
     v = intr.fy * y + intr.cy
     img_points = np.vstack((u, v)).T
     return img_points.astype(int)
+
+def triangulation(P0, P1, pts0, pts1):
+
+    def DLT(P1, P2, point1, point2):
+        A = [point1[1] * P1[2, :] - P1[1, :],
+             P1[0, :] - point1[0] * P1[2, :],
+             point2[1] * P2[2, :] - P2[1, :],
+             P2[0, :] - point2[0] * P2[2, :]
+             ]
+        A = np.array(A).reshape((4, 4))
+        B = A.transpose() @ A
+
+        U, s, Vh = scipy.linalg.svd(B, full_matrices=False)
+
+        return Vh[3, 0:3] / Vh[3, 3]
+
+    p3ds = []
+    for uv0, uv1 in zip(pts0, pts1):
+        _p3d = DLT(P0, P1, uv0, uv1)
+        p3ds.append(_p3d)
+    p3ds = np.array(p3ds)
+    return p3ds
 
 
 def check_duo_calibration(extr0: Extrinsic, intr0: Intrinsics, extr1: Extrinsic, intr1: Intrinsics, _zshift =0.5 ):
@@ -157,3 +196,6 @@ def check_duo_calibration(extr0: Extrinsic, intr0: Intrinsics, extr1: Extrinsic,
     cap0.release()
     cap1.release()
     cv2.destroyAllWindows()
+
+
+

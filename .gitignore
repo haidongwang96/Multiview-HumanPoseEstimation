@@ -6,5 +6,6 @@
 *.jpg
 *.mp4
 *.pt
+*.npy
 *.idea
 *.xml

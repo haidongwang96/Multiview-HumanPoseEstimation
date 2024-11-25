@@ -95,3 +95,54 @@ def double_picture_recording(cam_id1, cam_id2, key="sample"):
             break
 
     cv2.destroyWindow("0")
+
+
+def double_mp4_recording(cam_id1, cam_id2, key="video"):
+    sample_folder = su.create_ouput_folder(key)
+    print("double camera video recording")
+
+    capture0 = get_cv2_capture(cam_id1)
+    capture1 = get_cv2_capture(cam_id2)
+
+    timestampSTR = str(round(time.time() * 1000))
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # MP4 格式编码
+
+    cap0_path = os.path.join(sample_folder, f"{timestampSTR}_{cam_id1}.mp4")
+    cap1_path = os.path.join(sample_folder, f"{timestampSTR}_{cam_id2}.mp4")
+    out0 = cv2.VideoWriter(cap0_path, fourcc, 30.0, (1280, 720)) # 这里需要和get_cv2_capture （height,width)对齐
+    out1 = cv2.VideoWriter(cap1_path, fourcc, 30.0, (1280, 720))
+
+    recording = False
+
+    if not capture0.isOpened() or not capture1.isOpened():
+        print("Error: Could not open one or both cameras.")
+        exit()
+
+    while True:
+        ret0, frame0 = capture0.read()
+        ret1, frame1 = capture1.read()
+
+        if not ret0 or not ret1:
+            print("Error: Could not read frames from one or both cameras.")
+            break
+
+        images = np.hstack((frame0, frame1))
+        cv2.imshow("0", images)
+        key = cv2.waitKey(1)
+
+        if key == 32:
+            recording = True
+            print("start recording")
+
+        if recording:
+            out0.write(frame0)
+            out1.write(frame1)
+
+        if key == 27:  # exit on ESC
+            break
+
+    capture0.release()
+    out0.release()
+    capture1.release()
+    out1.release()
+    cv2.destroyWindow("0")
