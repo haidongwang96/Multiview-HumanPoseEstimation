@@ -16,9 +16,12 @@
     * yolov11 (w/o pose)
     * ***(TODO)*** multi-view re-id 模型 
     * ***(TODO)*** multi-view tracking
-  
-* ***(TODO)*** 3D plot
-* ***(TODO)*** bash+py args  脚本化全流程
+* 可视化
+  * ***(ongoing)*** 3D plot
+  * ***(TODO)*** virtual fence 绘制
+  * ***(TODO)*** 整合场景 plot
+* 系统化
+  * ***(TODO)*** bash+py args  脚本化全流程
     
 ## 测试方法
 1. dataset cross validation
@@ -38,6 +41,11 @@
 1. [aruco_test_stream_duo.py](aruco_test_stream_duo.py)  可以对双相机进行aruco进行展示，确保相机都可以对aruco码进行检测
 2. 之后调用recording，拍摄双相机aruco图片
 3. 使用[check_duo_calibration.py](check_duo_calibration.py) 对拍摄好的aruco进行分析，使用卷尺查看是否正确，并保存双相机之间的外参 
+4. **Note**: 注意两个相机的顺序
+
+## 划定 virtual fence边界
+* 计算virtual fence边界
+
 
 ## 数据收集
 1. 架设双相机，使用[recording.py](recording.py)进行拍摄，保存不同照片

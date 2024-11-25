@@ -16,11 +16,11 @@ mtx1 = np.array([[781.18543401, 0., 652.45577192],
                  [0., 780.81321374, 338.19187737],
                  [0., 0., 1.]])
 
-image_folder_path ="data/record/aruco_0"
+image_folder_path ="data/record/aruco_1"
 
-frame0 = cv2.imread(f"{image_folder_path}/1731723575664_0.jpg")
+frame0 = cv2.imread(f"{image_folder_path}/1732521891855_0.jpg")
 rvec0, tvec0 = camera.estimate_single_marker_r_t(frame0, mtx0)
-frame1 = cv2.imread(f"{image_folder_path}/1731723575664_1.jpg")
+frame1 = cv2.imread(f"{image_folder_path}/1732521891855_1.jpg")
 rvec1, tvec1 = camera.estimate_single_marker_r_t(frame1, mtx1)
 
 
