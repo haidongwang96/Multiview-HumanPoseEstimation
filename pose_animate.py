@@ -15,7 +15,7 @@ from ultralytics import YOLO
 
 """
 todo:   1. 3D PLOT multi-color (DONE)
-        2. save images with plots 
+        2. save images with plots (Done)
 """
 
 

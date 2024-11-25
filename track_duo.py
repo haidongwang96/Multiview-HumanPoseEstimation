@@ -38,11 +38,11 @@ def track(model, frame, track_history):
 # Load the YOLO11 model
 model = YOLO("data/weights/yolo11n-pose.pt")
 
-v0 = "data/record/video_0/1732262179527_0.mp4"
-v1 = "data/record/video_0/1732262179527_1.mp4"
+# v0 = "data/record/video_0/1732262179527_0.mp4"
+# v1 = "data/record/video_0/1732262179527_1.mp4"
 
-cap0 = camera.get_cv2_capture(v0)
-cap1 = camera.get_cv2_capture(v1)
+cap0 = camera.get_cv2_capture(0)
+cap1 = camera.get_cv2_capture(1)
 
 if not cap0.isOpened() or not cap1.isOpened():
     print("Error: Could not open one or both cameras.")

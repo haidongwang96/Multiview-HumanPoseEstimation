@@ -22,7 +22,7 @@ def calibrate_single_intrinscis(sample_folder, cam_id):
 
 
 if __name__ == '__main__':
-    sample_folder = "data/record/chessboard_0"
+    sample_folder = "data/record/chessboard_1"
     calibrate_both_intrinsics(sample_folder)
     # calibrate_single_intrinscis(sample_folder, 0)
     # calibrate_single_intrinscis(sample_folder,1)
