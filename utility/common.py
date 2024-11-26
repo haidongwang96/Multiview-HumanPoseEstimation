@@ -42,6 +42,23 @@ def create_ouput_folder(prefix="sample"):
         else:
             n +=1
 
+def create_asending_folder(path, prefix="sample"):
+    """
+    check and create asending order new directory with prefix
+    """
+
+    record_path = os.path.join(os.path.curdir, path)
+    os.makedirs(record_path,exist_ok=True)
+    n = 0
+    while True:
+        sample_path = os.path.join(record_path,f"{prefix}_{n}")
+        if not os.path.exists(sample_path):
+            os.makedirs(sample_path)
+            return sample_path
+        else:
+            n +=1
+
+
 
 def prepare_dir(path):
     """Make dir if necessary."""
