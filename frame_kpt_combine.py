@@ -13,7 +13,7 @@ frame_idx = 0
 # 创建视频编写器
 fourcc = cv2.VideoWriter_fourcc(*'mp4v')
 # size = (width, height)
-video = cv2.VideoWriter("out1.mp4", fourcc, 20.0, (1280, 840))
+video = cv2.VideoWriter("out2.mp4", fourcc, 20.0, (1280, 840))
 
 while True:
 

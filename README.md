@@ -41,8 +41,8 @@ https://www.bilibili.com/video/BV1mT4y1o7Q2?spm_id_from=333.788.videopod.section
     * ***(TODO)*** multi-view re-id 模型 
     * ***(TODO)*** multi-view tracking
 * 可视化
-  * ***(ongoing)*** 3D plot
-  * ***(TODO)*** virtual fence 绘制
+  *  3D plot
+  *  virtual fence 绘制
   * ***(TODO)*** 整合场景 plot
 * 系统化
   * ***(TODO)*** bash+py args  脚本化全流程

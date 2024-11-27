@@ -52,11 +52,9 @@ def is_point_in_quadrilateral(landmarks, P):
         return False
 
 
-
-
 def track(model, frame, track_history):
     # Run YOLO11 tracking on the frame, persisting tracks between frames
-    results = model.track(frame, persist=True, half=False, conf=0.3, iou=0.7, classes=[0], verbose=False,
+    results = model.track(frame, persist=True, half=False, conf=0.5, iou=0.7, classes=[0], verbose=False,
                           tracker="bytetrack.yaml")
     result = results[0] # 因为只输入一张图像
     annotated_frame = result.plot()
@@ -141,8 +139,8 @@ if __name__ == '__main__':
     # cap0 = camera.get_cv2_capture(0)
     # cap1 = camera.get_cv2_capture(1)
 
-    v0 = "data/record_ubuntu/video_1/1732606939887_2.mp4"
-    v1 = "data/record_ubuntu/video_1/1732606939887_4.mp4"
+    v0 = "data/record_ubuntu/video_0/1732606793310_2.mp4"
+    v1 = "data/record_ubuntu/video_0/1732606793310_4.mp4"
 
     landmark0 = su.read_list_file("data/annotation/mouse_click/landmark_0/1732607373680_2.txt", " ")
     landmark1 = su.read_list_file("data/annotation/mouse_click/landmark_0/1732607373680_4.txt", " ")
@@ -186,29 +184,28 @@ if __name__ == '__main__':
         annotated_frame0, result0 = track(model, frame0, track_history0)
         annotated_frame1, result1 = track(model, frame1, track_history1)
 
-        cv2.imwrite(f"{out_dir}/dframe_{frame_idx}_0.jpg", annotated_frame0)
-        cv2.imwrite(f"{out_dir}/dframe_{frame_idx}_1.jpg", annotated_frame1)
-
         if result0 is None or result1 is None:
             print(1)
             continue
 
         p3ds = process_keypoints(result0, result1, extr=extr_C2_Cw)
         if p3ds is None: # 没有有5个keypoint被检测出来
+            cv2.imwrite(f"{out_dir}/dframe_{frame_idx}_0.jpg", annotated_frame0)
+            cv2.imwrite(f"{out_dir}/dframe_{frame_idx}_1.jpg", annotated_frame1)
             continue
         else:
             kypts_3d.append(p3ds)
             fig, ax = su.pose_3d_plot(p3ds)
-            # kpt_center = get_kpts3d_center(p3ds)
-            # isin_zone = is_point_in_quadrilateral(landmark_3d_to_2d, kpt_center)
-            #
-            # if isin_zone:
-            #     vf_color = (0,0,1)
-            #     annotated_frame0 = su.draw_fence(annotated_frame0, landmark0, color=(0,0,255))
-            #     annotated_frame1 = su.draw_fence(annotated_frame1, landmark1, color=(0,0,255))
-            # else:
-            #     vf_color = (0,1,0)
-            vf_color = (0,1,0)
+            kpt_center = get_kpts3d_center(p3ds)
+            isin_zone = is_point_in_quadrilateral(landmark_3d_to_2d, kpt_center)
+
+            if isin_zone:
+                vf_color = (1,0,0)
+                annotated_frame0 = su.draw_fence(annotated_frame0, landmark0, color=(0,0,255))
+                annotated_frame1 = su.draw_fence(annotated_frame1, landmark1, color=(0,0,255))
+            else:
+                vf_color = (0,1,0)
+            #vf_color = (0,1,0)
 
             su.plot_3d_fence(ax, landmark_3d, vf_color)
             plot_save_name = f"{pose_dir}/pose_3d_{frame_idx}.jpg"
@@ -222,6 +219,9 @@ if __name__ == '__main__':
                         0.5, (0, 255, 0), 1, cv2.LINE_AA)
             # Display the annotated frame
             cv2.imshow("YOLO11 Tracking", frame)
+
+            cv2.imwrite(f"{out_dir}/dframe_{frame_idx}_0.jpg", annotated_frame0)
+            cv2.imwrite(f"{out_dir}/dframe_{frame_idx}_1.jpg", annotated_frame1)
 
             # Break the loop if 'q' is pressed
             if cv2.waitKey(1) & 0xFF == ord("q"):

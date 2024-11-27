@@ -151,8 +151,8 @@ class skeleton_util():
 
 sk_util = skeleton_util()
 
-def duo_camera_pose_preprocess(kpts0, kpts1, conf_thres=0.3):
-    # 去去除掉不符合conf threshold的点
+def duo_camera_pose_preprocess(kpts0, kpts1, conf_thres=0.5):
+    # 去去除掉不符合conf threshold的点, 不能小于0.5
     nkpt0, ndim0 = kpts0.shape
     nkpt1, ndim1 = kpts1.shape
 
@@ -191,7 +191,7 @@ def pose_3d_plot(p3ds):
 
     ax.set_xlim(-600, -100)
     ax.set_ylim(-900, 300)
-    ax.set_zlim(-250, 0)
+    ax.set_zlim(-400, 0)
 
     for i, k in enumerate(p3ds):
         x, y, z = k
