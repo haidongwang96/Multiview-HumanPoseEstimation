@@ -6,9 +6,6 @@ import camera
 import utility as su
 
 
-
-
-
 class Extrinsic:
 
     def __init__(self, R, t):
@@ -23,6 +20,15 @@ class Extrinsic:
 
     def __str__(self):
         return str(self.pose_mat)
+
+    def transform(self, points_3d):
+        # have not been tested yet
+        if points_3d.shape[1] != 3:
+            points_3d = points_3d.reshape(-1, 3)
+            print("l")
+        new_points_3d = (self.R() @ points_3d.T).T + self.t().T  # 变换
+        return new_points_3d
+
 
     def R(self):
         # 旋转矩阵
@@ -46,10 +52,22 @@ class Extrinsic:
     def inverse_transformation(self):
         return Extrinsic(self.R_inv(), self.t_inv())
 
+    def save(self, path):
+        out_c0_extrin = {}
+        out_c0_extrin["R"] = self.R().tolist()
+        out_c0_extrin["T"] = self.t().tolist()
+        su.write_json_file(out_c0_extrin, path)
+
+def extr_load(path):
+    d = su.read_json_file(path)
+    R = np.array(d["R"])
+    t = np.array(d["T"])
+    return Extrinsic(R, t)
+
 
 class Intrinsics:
 
-    def __init__(self, cmtx):
+    def __init__(self, cmtx, dist=None):
         """
         cmtx =  [[     603.57           0      319.55]
                  [          0      603.16      242.55]
@@ -61,9 +79,18 @@ class Intrinsics:
         self.cx = cmtx[0][2]
         self.cy = cmtx[1][2]
 
+        self.dist = dist
+
     def get_cam_mtx(self):
         m = [[self.fx, 0, self.cx], [0, self.fy, self.cy], [0, 0, 1]]
         return np.array(m)
+
+def intr_load(path):
+    d = su.read_json_file(path)
+    cmtx = np.array(d['intrinsic'])
+    dist = np.array(d['distortion_coefs'])
+
+    return Intrinsics(cmtx, dist)
 
 
 class ProjectionMatrix():

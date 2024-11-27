@@ -2,8 +2,6 @@ import cv2
 import os
 import numpy as np
 
-from pose_triangulation import keypoint0
-
 os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 from collections import defaultdict
 

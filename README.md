@@ -14,12 +14,14 @@ https://www.bilibili.com/video/BV1mT4y1o7Q2?spm_id_from=333.788.videopod.section
 
 ## todo:
 * [pose_animate.py](pose_animate.py) process_keypoints 多人id的处理，multiframe id的reid 之后进行3d triangulation
+* keypoint 滤波
 
 ## task:
 1. 收集数据，标注数据
    1. 录制数据时，拍摄一组 chessboard 图像（n)
    2. 拍摄一组aruco 图像（1）
    3. 记录图像保存位置（路径名）
+   4. 放置四个角点（aruco) 拍摄landmark
 
 ## 项目构成
 * 相机

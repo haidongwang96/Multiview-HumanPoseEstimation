@@ -16,8 +16,11 @@ import cv2
 #                  [0., 0., 1.]])
 # dist1 = np.array([[0.05427265,  0.00726026,  0.00728199, -0.00566807, -0.22047885]])
 
-mtx0, dist0 = camera.load_intrinsic_calibration_parameters("data/camera_parameters/camera_0_intrinsics.json")
-mtx1, dist1 = camera.load_intrinsic_calibration_parameters("data/camera_parameters/camera_1_intrinsics.json")
+
+cam_ids=[2,4]
+
+mtx0, dist0 = camera.load_intrinsic_calibration_parameters(f"data/camera_parameters/camera_{cam_ids[0]}_intrinsics.json")
+mtx1, dist1 = camera.load_intrinsic_calibration_parameters(f"data/camera_parameters/camera_{cam_ids[1]}_intrinsics.json")
 
 
 cap0 = camera.get_cv2_capture(0)

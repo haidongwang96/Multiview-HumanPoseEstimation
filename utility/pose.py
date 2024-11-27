@@ -144,20 +144,20 @@ class skeleton_util():
         self.skeleton = [[16, 14],[14, 12],[17, 15],[15, 13],
                          [12, 13],[6, 12],[7, 13],[6, 7],[6, 8],
                          [7, 9],[8, 10],[9, 11],[2, 3],[1, 2],
-                         [1, 3],[2, 4],[3, 5],[4, 6],[5, 7],]
+                             [1, 3],[2, 4],[3, 5],[4, 6],[5, 7]]
 
         self.limb_color = colors.pose_palette[[9, 9, 9, 9, 7, 7, 7, 0, 0, 0, 0, 0, 16, 16, 16, 16, 16, 16, 16]]
         self.kpt_color = colors.pose_palette[[16, 16, 16, 16, 16, 0, 0, 0, 0, 0, 0, 9, 9, 9, 9, 9, 9]]
 
 sk_util = skeleton_util()
 
-def duo_camera_pose_preprocess(kpts0, kpts1,conf_thres=0.6):
-
+def duo_camera_pose_preprocess(kpts0, kpts1, conf_thres=0.3):
+    # 去去除掉不符合conf threshold的点
     nkpt0, ndim0 = kpts0.shape
     nkpt1, ndim1 = kpts1.shape
 
     is_pose = nkpt0 ==nkpt1 == 17 and ndim0 == ndim1 ==3
-    assert is_pose
+    #assert is_pose
     duo_pose=[]
     for i, (k0, k1) in enumerate(zip(kpts0, kpts1)):
         x0_coord, y0_coord, conf0 = k0[0], k0[1], k0[2]
@@ -189,6 +189,10 @@ def pose_3d_plot(p3ds):
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
 
+    ax.set_xlim(-600, -100)
+    ax.set_ylim(-900, 300)
+    ax.set_zlim(-250, 0)
+
     for i, k in enumerate(p3ds):
         x, y, z = k
         if x == y == z == 0:
@@ -207,10 +211,37 @@ def pose_3d_plot(p3ds):
     ax.set_ylabel('Y')
     ax.set_zlabel('Z')
 
-    return fig
+    return fig, ax
 
+ldm_line= [[0,1],[1,2],[2,3],[3,0]]
+def draw_fence(img, landmarks, color=(0, 255, 0), thickness=2):
+    #  链接四个角点的virtual fence
+    for landmark in landmarks:
+        cv2.circle(img, (landmark[0], landmark[1]), 2, color, thickness)
 
+    for i, line in enumerate(ldm_line):
+        pt1 = tuple((landmarks[line[0]][0], landmarks[line[0]][1]))
+        pt2 = tuple((landmarks[line[1]][0], landmarks[line[1]][1]))
+        cv2.line(img, pt1, pt2, color, thickness)
 
+    return img
+
+def plot_3d_fence(ax, landmarks_3d, color):
+
+    for i, k in enumerate(landmarks_3d):
+        x, y, z = k
+        if x == y == z == 0:
+            continue
+        ax.scatter(x, y, z, c=color, marker='o')
+
+    for line in ldm_line:
+
+        pos0 = tuple((landmarks_3d[line[0]][0], landmarks_3d[line[0]][1], landmarks_3d[line[0]][2]))
+        pos1 = tuple((landmarks_3d[line[1]][0], landmarks_3d[line[1]][1], landmarks_3d[line[1]][2]))
+        ax.plot([pos0[0], pos1[0]], [pos0[1], pos1[1]], [pos0[2], pos1[2]],
+                color=color, linestyle='-')
+
+    return ax
 
 
 

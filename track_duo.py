@@ -16,33 +16,37 @@ def track(model, frame, track_history):
 
     # Visualize the results on the frame
     annotated_frame = results[0].plot()
-
-    if results is not None:
-        # Get the boxes and track IDs
-        boxes = results[0].boxes.xywh.cpu()
-        track_ids = results[0].boxes.id.int().cpu().tolist()
-        # Plot the tracks
-        for box, track_id in zip(boxes, track_ids):
-            x, y, w, h = box
-            track = track_history[track_id]
-            track.append((float(x), float(y)))  # x, y center point
-            if len(track) > 30:  # retain 90 tracks for 90 frames
-                track.pop(0)
-
-            # Draw the tracking lines
-            points = np.hstack(track).astype(np.int32).reshape((-1, 1, 2))
-            cv2.polylines(annotated_frame, [points], isClosed=False, color=(230, 230, 230), thickness=10)
     return annotated_frame
+
+    # if results is not None:
+    #     # Get the boxes and track IDs
+    #     boxes = results[0].boxes.xywh.cpu()
+    #     track_ids = results[0].boxes.id.int().cpu().tolist()
+    #     # Plot the tracks
+    #     for box, track_id in zip(boxes, track_ids):
+    #         x, y, w, h = box
+    #         track = track_history[track_id]
+    #         track.append((float(x), float(y)))  # x, y center point
+    #         if len(track) > 30:  # retain 90 tracks for 90 frames
+    #             track.pop(0)
+    #
+    #         # Draw the tracking lines
+    #         points = np.hstack(track).astype(np.int32).reshape((-1, 1, 2))
+    #         cv2.polylines(annotated_frame, [points], isClosed=False, color=(230, 230, 230), thickness=10)
+    #     return annotated_frame
+    # else:
+    #     return frame
+
 
 
 # Load the YOLO11 model
 model = YOLO("data/weights/yolo11n-pose.pt")
 
-# v0 = "data/record/video_0/1732262179527_0.mp4"
-# v1 = "data/record/video_0/1732262179527_1.mp4"
+v0 = "data/record_ubuntu/video_1/1732606939887_2.mp4"
+v1 = "data/record_ubuntu/video_1/1732606939887_4.mp4"
 
-cap0 = camera.get_cv2_capture(0)
-cap1 = camera.get_cv2_capture(1)
+cap0 = camera.get_cv2_capture(v0)
+cap1 = camera.get_cv2_capture(v1)
 
 if not cap0.isOpened() or not cap1.isOpened():
     print("Error: Could not open one or both cameras.")
